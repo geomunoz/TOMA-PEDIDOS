@@ -1,0 +1,6 @@
+{
+  "name": "La Viña Dulce - Pastelería Artesanal",
+  "description": "Sistema de pedidos personalizados de pasteles, nota de pedido oficial, pagos seguros y seguimiento en tiempo real para La Viña Dulce (Loja).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
