@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Order } from '../types/order';
 import { BAKERY_INFO, STATUS_LABELS } from '../data/constants';
-import { Printer, Share2, ShieldCheck, CheckCircle2, MessageCircle, Send } from 'lucide-react';
+import { Printer, Share2, ShieldCheck, CheckCircle2, MessageCircle, Send, Settings2 } from 'lucide-react';
 import { openCustomerWhatsAppReceipt } from '../utils/whatsapp';
+import { printThermalViaBrowser } from '../utils/posPrinter';
 import { BakeryLogo } from './BakeryLogo';
+import { PosPrinterModal } from './PosPrinterModal';
 
 interface OfficialReceiptProps {
   order: Order;
@@ -11,6 +13,8 @@ interface OfficialReceiptProps {
 }
 
 export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({ order }) => {
+  const [isPosModalOpen, setIsPosModalOpen] = useState<boolean>(false);
+
   const handlePrint = () => {
     window.print();
   };
@@ -55,6 +59,45 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({ order }) => {
             >
               <Share2 className="w-3.5 h-3.5 text-slate-500" />
               <span className="hidden sm:inline">Taller</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Dedicated Prominent POS Thermal Printer Action */}
+        <div className="pt-2 border-t border-pink-100 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-pink-50/90 via-white to-sky-50/90 p-3 rounded-xl border border-pink-200">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-[#00b4d8] text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Printer className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-900 block flex items-center gap-1.5">
+                <span>Impresora Punto de Venta (POS)</span>
+                <span className="text-[10px] font-black uppercase text-pink-700 bg-pink-100 px-2 py-0.5 rounded-full border border-pink-200">
+                  Térmica 80mm / 58mm
+                </span>
+              </span>
+              <span className="text-[11px] text-slate-600">
+                Imprima el ticket térmico o conecte vía Bluetooth, Cable USB o Spooler
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => printThermalViaBrowser(order, '80mm', 'all')}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-pink-600 hover:bg-pink-700 active:scale-95 rounded-lg transition-all cursor-pointer shadow-xs"
+              title="Imprimir ticket térmico rápido (80mm)"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Imprimir Ticket POS</span>
+            </button>
+            <button
+              onClick={() => setIsPosModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-sky-800 bg-sky-100 hover:bg-sky-200 border border-sky-300 rounded-lg transition-all cursor-pointer"
+              title="Conectar impresora POS, Bluetooth, USB y opciones"
+            >
+              <Settings2 className="w-3.5 h-3.5 text-sky-600" />
+              <span>Conectar POS</span>
             </button>
           </div>
         </div>
@@ -424,6 +467,13 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({ order }) => {
           </button>
         </div>
       </div>
+
+      {/* POS Printer Modal */}
+      <PosPrinterModal
+        order={order}
+        isOpen={isPosModalOpen}
+        onClose={() => setIsPosModalOpen(false)}
+      />
     </div>
   );
 };

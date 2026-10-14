@@ -77,3 +77,12 @@
     background: white !important;
   }
 }
+
+/* Thermal POS Printer Styles */
+.pos-ticket-paper {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  line-height: 1.25;
+  color: #000;
+  background: #fff;
+}

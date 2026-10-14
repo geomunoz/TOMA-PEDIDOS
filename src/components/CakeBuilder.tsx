@@ -32,10 +32,14 @@ import {
   X,
   Store,
   Receipt,
-  ClipboardCheck
+  ClipboardCheck,
+  Printer,
+  Settings2
 } from 'lucide-react';
 import { openCustomerWhatsAppReceipt } from '../utils/whatsapp';
+import { printThermalViaBrowser } from '../utils/posPrinter';
 import { BakeryLogo } from './BakeryLogo';
+import { PosPrinterModal } from './PosPrinterModal';
 
 interface CakeBuilderProps {
   onOrderCreated: (newOrder: Order) => void;
@@ -118,6 +122,7 @@ export const CakeBuilder: React.FC<CakeBuilderProps> = ({ onOrderCreated, onView
   // Modal for official receipt generated with customer WhatsApp option
   const [completedOrderModal, setCompletedOrderModal] = useState<Order | null>(null);
   const [modalPhone, setModalPhone] = useState<string>('');
+  const [isPosModalOpen, setIsPosModalOpen] = useState<boolean>(false);
 
   const handlePortionsChange = (newPortions: number) => {
     setPortions(newPortions);
@@ -1255,6 +1260,7 @@ export const CakeBuilder: React.FC<CakeBuilderProps> = ({ onOrderCreated, onView
 
             {/* Action buttons */}
             <div className="space-y-2.5">
+              {/* Primary WhatsApp Action */}
               <button
                 type="button"
                 onClick={() => {
@@ -1275,6 +1281,39 @@ export const CakeBuilder: React.FC<CakeBuilderProps> = ({ onOrderCreated, onView
                 <span>Enviar Recibo al WhatsApp del Cliente</span>
               </button>
 
+              {/* Point of Sale Thermal Print Actions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const finalOrder = {
+                      ...completedOrderModal,
+                      customer: {
+                        ...completedOrderModal.customer,
+                        phone: modalPhone || completedOrderModal.customer.phone
+                      }
+                    };
+                    printThermalViaBrowser(finalOrder, '80mm', 'all');
+                  }}
+                  className="py-3 px-3 bg-pink-600 hover:bg-pink-700 active:scale-[0.98] text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-pink-600/20 flex items-center justify-center gap-1.5 cursor-pointer"
+                  title="Imprimir ticket en impresora térmica de punto de venta"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Imprimir Ticket POS (80mm)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsPosModalOpen(true)}
+                  className="py-3 px-3 bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-300 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  title="Opciones avanzadas y conexión Bluetooth / USB"
+                >
+                  <Settings2 className="w-4 h-4 text-sky-600" />
+                  <span>Conectar POS / Opciones</span>
+                </button>
+              </div>
+
+              {/* View Full Sheet / A4 */}
               <button
                 type="button"
                 onClick={() => {
@@ -1284,11 +1323,20 @@ export const CakeBuilder: React.FC<CakeBuilderProps> = ({ onOrderCreated, onView
                 className="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <FileText className="w-4 h-4 text-slate-500" />
-                <span>Ver Nota de Pedido Oficial (Imprimir / Talón)</span>
+                <span>Ver Nota de Pedido Oficial (Talón Físico A4)</span>
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* POS Printer Modal from CakeBuilder */}
+      {completedOrderModal && (
+        <PosPrinterModal
+          order={completedOrderModal}
+          isOpen={isPosModalOpen}
+          onClose={() => setIsPosModalOpen(false)}
+        />
       )}
     </div>
   );

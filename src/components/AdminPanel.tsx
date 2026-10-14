@@ -6,11 +6,13 @@ import {
   Search,
   ChevronRight,
   MessageCircle,
-  Eye
+  Eye,
+  Printer
 } from 'lucide-react';
 import { playNotificationDing } from '../utils/audio';
 import { openCustomerWhatsAppReceipt } from '../utils/whatsapp';
 import { BakeryLogo } from './BakeryLogo';
+import { PosPrinterModal } from './PosPrinterModal';
 
 interface AdminPanelProps {
   orders: Order[];
@@ -25,6 +27,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 }) => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedPosOrder, setSelectedPosOrder] = useState<Order | null>(null);
+  const [isPosModalOpen, setIsPosModalOpen] = useState<boolean>(false);
 
   // Financial and status aggregations
   const totalOrders = orders.length;
@@ -276,13 +280,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
                 {/* Action buttons toolbar */}
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-pink-50">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <button
                       onClick={() => onViewReceipt(order)}
                       className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 rounded-lg transition-colors cursor-pointer"
                     >
                       <FileText className="w-3.5 h-3.5" />
                       <span>Nota de Pedido</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedPosOrder(order);
+                        setIsPosModalOpen(true);
+                      }}
+                      className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 rounded-lg transition-colors cursor-pointer"
+                      title="Imprimir ticket térmico en impresora punto de venta"
+                    >
+                      <Printer className="w-3.5 h-3.5 text-sky-600" />
+                      <span>Ticket POS</span>
                     </button>
                     <button
                       onClick={() => openCustomerWhatsAppReceipt(order)}
@@ -310,6 +325,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           })
         )}
       </div>
+
+      {/* POS Printer Modal in Admin Panel */}
+      {selectedPosOrder && (
+        <PosPrinterModal
+          order={selectedPosOrder}
+          isOpen={isPosModalOpen}
+          onClose={() => {
+            setIsPosModalOpen(false);
+            setSelectedPosOrder(null);
+          }}
+        />
+      )}
     </div>
   );
 };
